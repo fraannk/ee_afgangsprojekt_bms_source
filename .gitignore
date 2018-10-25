@@ -1,3 +1,6 @@
 /.metadata/
 FreeRTOS_TAD_logs/
 /BMS/flash/
+*.axf
+*.map
+*.ld
