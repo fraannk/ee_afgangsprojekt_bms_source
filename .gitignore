@@ -1,6 +1,6 @@
 /.metadata/
 FreeRTOS_TAD_logs/
-BMS/flash/
-BMS/flash/BMS_flash.ld
-BMS/flash/BMS_flash_library.ld
-BMS/flash/BMS_flash_memory.ld
+/BMS/flash/
+/BMS/flash/BMS_flash.ld
+/BMS/flash/BMS_flash_library.ld
+/BMS/flash/BMS_flash_memory.ld
