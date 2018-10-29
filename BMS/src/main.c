@@ -44,8 +44,8 @@ uint32_t getCellVoltage(int cellNumber) {
 	}
 	I2CWriteLength = 1;
 	I2CReadLength = 2;
-	I2CMasterBuffer[0] = 0x08;
-	I2CMasterBuffer[1] = 0x03;
+	I2CMasterBuffer[0] = BQ76920_ADDR;
+	I2CMasterBuffer[1] = BQ76920_CONFIG;
 	I2CmasterWriteRead( I2CMasterBuffer, I2CSlaveBuffer, I2CWriteLength, I2CReadLength );
 	/* The temp reading value should reside in I2CSlaveBuffer... */
 	configValue = (uint32_t)(((I2CSlaveBuffer[0]<<8) | I2CSlaveBuffer[1]) >> 5);
@@ -57,7 +57,7 @@ uint32_t getCellVoltage(int cellNumber) {
 	}
 	I2CWriteLength = 1;
 	I2CReadLength = 2;
-	I2CMasterBuffer[0] = 0x10;
+	I2CMasterBuffer[0] = BQ76920_ADDR;
 	I2CMasterBuffer[1] = 0x0D;
 	I2CmasterWriteRead( I2CMasterBuffer, I2CSlaveBuffer, I2CWriteLength, I2CReadLength );
 	/* The temp reading value should reside in I2CSlaveBuffer... */
