@@ -11,9 +11,12 @@
 #include "LPC8xx.h"
 #include "i2c.h"
 #include "swm.h"
+#include "system.h"
 #include "syscon.h"
 #include "uart.h"
 #include "utilities.h"
+#include "ctimer.h"
+#include "gpio.h"
 
 #define I2CBAUD 		100000
 
@@ -66,6 +69,20 @@ uint32_t getCellVoltage(int cellNumber) {
 	return cellVoltage;
 }
 
+void delayUs(uint32_t delayInUs) {
+	// Timer counting setup
+	LPC_SYSCON->PRESETCTRL1 &= (CTIMER0_RST_N); 			// Reset timer
+	LPC_SYSCON->PRESETCTRL1 &= ~(CTIMER0_RST_N); 			// Reset timer
+	LPC_CTIMER0->PR = 0x00; 								// Set prescale to 0
+	LPC_CTIMER0->MR[0] = (delayInUs * (main_clk / 1000)); 	// Set delay prefix
+	LPC_CTIMER0->IR = 0x00;									// Reset interrupts
+	LPC_CTIMER0->MCR = 0x00;								// Stop timer on match
+	LPC_CTIMER0->TCR = 0x02;								// Start timer
+
+	uint8_t tcr = LPC_CTIMER0->TCR;
+	while (tcr & 0x01);					// Wait until delay is done
+}
+
 /*****************************************************************************
 *****************************************************************************/
 int main(void) {
@@ -74,20 +91,32 @@ int main(void) {
 	
 	// Configure the debug uart (see Serial.c)
 	setup_debug_uart();
-	printf("Battery Management System v0.1 booting...\r\n");
+	printf("\r\nBattery Management System v0.1 booting...\r\n");
+	SystemCoreClockUpdate();
+	printf("Main clock: %d\r\n", main_clk);
 	
 	// Provide main_clk as function clock to I2C0
 	LPC_SYSCON->I2C0CLKSEL = FCLKSEL_MAIN_CLK;
   
 	// Enable bus clocks to I2C0, SWM
-	LPC_SYSCON->SYSAHBCLKCTRL0 |= (I2C0 | SWM);
-  
+	LPC_SYSCON->SYSAHBCLKCTRL0 |= (I2C0 | SWM | CTIMER0);
+
 	ConfigSWM(I2C0_SCL, TARTET_I2CSCL);               // Use for LPC804
 	ConfigSWM(I2C0_SDA, TARTET_I2CSDA);               // Use for LPC804
 
 	// Give I2C0 a reset
 	LPC_SYSCON->PRESETCTRL0 &= (I2C0_RST_N);
 	LPC_SYSCON->PRESETCTRL0 |= ~(I2C0_RST_N);
+
+	// Reset CTIMER0
+	LPC_SYSCON->PRESETCTRL1 &= (CTIMER0_RST_N);
+	LPC_SYSCON->PRESETCTRL1 &= ~(CTIMER0_RST_N);
+
+	printf("1\r");
+	printf("Timer value before delay: %d\r\n", LPC_CTIMER0->TC);
+	delayUs(10);
+	printf("Timer value after delay: %d\r\n", LPC_CTIMER0->TC);
+	printf("2\r");
 
 	// Configure the I2C0 clock divider
 	// Desired bit rate = Fscl = 100,000 Hz (1/Fscl = 10 us, 5 us low and 5 us high)
@@ -101,6 +130,8 @@ int main(void) {
 	LPC_I2C0->CFG = CFG_MSTENA;
 
 	printf("Boot complete, running routine...\r\n");
+
+	printf("Timer value after boot complete: %d\r\n", LPC_CTIMER0->TC);
 
 	while(1) {
 		//	  for (i = 0x01; i < 50; i++) {
