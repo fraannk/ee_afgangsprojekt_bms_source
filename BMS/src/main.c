@@ -72,15 +72,14 @@ uint32_t getCellVoltage(int cellNumber) {
 void delayUs(uint32_t delayInUs) {
 	// Timer counting setup
 	LPC_SYSCON->PRESETCTRL1 &= (CTIMER0_RST_N); 			// Reset timer
-	LPC_SYSCON->PRESETCTRL1 &= ~(CTIMER0_RST_N); 			// Reset timer
+	LPC_SYSCON->PRESETCTRL1 |= ~(CTIMER0_RST_N); 			// Reset timer
 	LPC_CTIMER0->PR = 0x00; 								// Set prescale to 0
-	LPC_CTIMER0->MR[0] = (delayInUs * (main_clk / 1000)); 	// Set delay prefix
+	LPC_CTIMER0->MR[0] = (delayInUs * (main_clk / 2000)); 	// Set delay prefix
 	LPC_CTIMER0->IR = 0x00;									// Reset interrupts
-	LPC_CTIMER0->MCR = 0x00;								// Stop timer on match
-	LPC_CTIMER0->TCR = 0x02;								// Start timer
+	LPC_CTIMER0->MCR = 0x03;								// Stop timer on match
+	LPC_CTIMER0->TCR = 0x01;								// Start timer
 
-	uint8_t tcr = LPC_CTIMER0->TCR;
-	while (tcr & 0x01);					// Wait until delay is done
+	while (LPC_CTIMER0->TC & 0x1);					// Wait until delay is done
 }
 
 /*****************************************************************************
@@ -89,6 +88,10 @@ int main(void) {
 
 	uint32_t i;
 	
+	GPIOInit();
+	GPIOSetDir(0, 11, 1);
+	GPIOSetBitValue(0, 11, 0);
+
 	// Configure the debug uart (see Serial.c)
 	setup_debug_uart();
 	printf("\r\nBattery Management System v0.1 booting...\r\n");
@@ -110,13 +113,7 @@ int main(void) {
 
 	// Reset CTIMER0
 	LPC_SYSCON->PRESETCTRL1 &= (CTIMER0_RST_N);
-	LPC_SYSCON->PRESETCTRL1 &= ~(CTIMER0_RST_N);
-
-	printf("1\r");
-	printf("Timer value before delay: %d\r\n", LPC_CTIMER0->TC);
-	delayUs(10);
-	printf("Timer value after delay: %d\r\n", LPC_CTIMER0->TC);
-	printf("2\r");
+	LPC_SYSCON->PRESETCTRL1 |= ~(CTIMER0_RST_N);
 
 	// Configure the I2C0 clock divider
 	// Desired bit rate = Fscl = 100,000 Hz (1/Fscl = 10 us, 5 us low and 5 us high)
@@ -126,26 +123,28 @@ int main(void) {
 	// Remember, value written to DIV divides by value+1.
 	// main_clk value is updated inside setup_debug_uart() already.
 	LPC_I2C0->DIV = (main_clk/(4*I2CBAUD)) - 1;
-
 	LPC_I2C0->CFG = CFG_MSTENA;
 
+	printf("Timer value before delay: %d\r\n", LPC_CTIMER0->TC);
+	delayUs(1000);
+	printf("Timer value after delay: %d\r\n", LPC_CTIMER0->TC);
 	printf("Boot complete, running routine...\r\n");
-
 	printf("Timer value after boot complete: %d\r\n", LPC_CTIMER0->TC);
 
 	while(1) {
-		//	  for (i = 0x01; i < 50; i++) {
-		//		  printf("Register %d:", i);
-		//		  printf("%d", registerRead(i));
-		//	  }
-
-		for (int i = 0; i < 1000000; i++);
+		delayUs(5000);
 
 		printf("Reading cell voltages...\r\n");
 		int cellVoltage1 = getCellVoltage(0x01);
 		int cellVoltage2 = getCellVoltage(0x02);
 		int cellVoltage3 = getCellVoltage(0x03);
 		int cellVoltage4 = getCellVoltage(0x04);
+
+		if (GPIOGetPinValue(0, 11)) {
+			GPIOSetBitValue(0, 11, 0);
+		} else {
+			GPIOSetBitValue(0, 11, 1);
+		}
 
 		printf("Cell 1: %d\r\n", cellVoltage1);
 		printf("Cell 2: %d\r\n", cellVoltage2);
