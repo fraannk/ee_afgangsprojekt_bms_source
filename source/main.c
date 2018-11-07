@@ -105,28 +105,28 @@ int main(void) {
   
   
   
-//  printf("Sending data to slave...");
-//  uint8_t registerAddress = 0x00U;
-//  
-//  /* First data in txBuff is data length of the transmiting data. */
-//  g_master_txBuff[0] = 0x01;
-//  g_master_txBuff[1] = 0x00;
-//  
-//  /* Send master blocking data to slave */
-//  I2C_MasterStart(I2C_MASTER, I2C_MASTER_SLAVE_ADDR_7BIT, kI2C_Write);
-//  
-//  /* subAddress = 0x01, data = g_master_txBuff - write to slave.
-//  start + slaveaddress(w) + subAddress + length of data buffer + data buffer + stop*/
-//  I2C_MasterWriteBlocking(I2C_MASTER, &registerAddress, 1, kI2C_TransferNoStopFlag);
-//  
-//  I2C_MasterWriteBlocking(I2C_MASTER, g_master_txBuff, 2, 0);
-//  I2C_MasterStop(I2C_MASTER);
+  printf("Sending data to slave...\r\n");
+  uint8_t registerAddress = 0x00U;
   
+  /* First data in txBuff is data length of the transmiting data. */
+  g_master_txBuff[0] = 0xAA;
   
+  /* Send master blocking data to slave */
+  I2C_MasterStart(I2C_MASTER, I2C_MASTER_SLAVE_ADDR_7BIT, kI2C_Write);
   
+  /* subAddress = 0x01, data = g_master_txBuff - write to slave.
+  start + slaveaddress(w) + subAddress + length of data buffer + data buffer + stop*/
+  I2C_MasterWriteBlocking(I2C_MASTER, &registerAddress, 1, kI2C_TransferNoStopFlag);
+  
+  I2C_MasterWriteBlocking(I2C_MASTER, g_master_txBuff, 1, 0);
+  I2C_MasterStop(I2C_MASTER);
+  
+  printf("Sent data 0xAA to register 0x00\r\n"); 
+  
+
   
   printf("Receiving data from slave...\r\n");
-  uint8_t registerAddress = 0x0DU;
+  registerAddress = 0x0DU;
   
   /* Receive blocking data from slave */
   /* subAddress = 0x01, data = g_master_rxBuff - read from slave.
