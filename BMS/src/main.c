@@ -74,7 +74,7 @@ void delayUs(uint32_t delayInUs) {
 	LPC_SYSCON->PRESETCTRL1 &= (CTIMER0_RST_N); 			// Reset timer
 	LPC_SYSCON->PRESETCTRL1 |= ~(CTIMER0_RST_N); 			// Reset timer
 	LPC_CTIMER0->PR = 0x00; 								// Set prescale to 0
-	LPC_CTIMER0->MR[0] = (delayInUs * (main_clk / 2000)); 	// Set delay prefix
+	LPC_CTIMER0->MR[0] = (delayInUs * (main_clk / 1000));	// Set delay prefix
 	LPC_CTIMER0->IR = 0x00;									// Reset interrupts
 	LPC_CTIMER0->MCR = 0x03;								// Stop timer on match
 	LPC_CTIMER0->TCR = 0x01;								// Start timer
@@ -132,7 +132,7 @@ int main(void) {
 	printf("Timer value after boot complete: %d\r\n", LPC_CTIMER0->TC);
 
 	while(1) {
-		delayUs(5000);
+		delayUs(1000);
 
 		printf("Reading cell voltages...\r\n");
 		int cellVoltage1 = getCellVoltage(0x01);
