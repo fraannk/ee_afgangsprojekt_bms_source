@@ -93,6 +93,10 @@ i2c_isr_t s_i2cMasterIsr;
 /*! @brief Pointer to slave IRQ handler for each instance. */
 static i2c_isr_t s_i2cSlaveIsr;
 
+uint8_t g_master_txBuff[I2C_DATA_LENGTH];
+uint8_t g_master_rxBuff[I2C_DATA_LENGTH];
+volatile bool g_MasterCompletionFlag = false;
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -1592,3 +1596,57 @@ void I2C2_DriverIRQHandler(void)
     I2C_TransferCommonIRQHandler(I2C2, s_i2cHandle[2]);
 }
 #endif
+
+void I2C_Init(void) {
+  /* Select the main clock as source clock of I2C0. */
+  CLOCK_Select(kI2C0_Clk_From_MainClk);
+  
+  /* I2C config variables */
+  i2c_master_config_t masterConfig;
+  
+  /* Set up i2c master to send data to slave*/
+  /* Get default I2C config */ 
+  I2C_MasterGetDefaultConfig(&masterConfig);
+  
+  /* Change the default baudrate configuration */
+  masterConfig.baudRate_Bps = I2C_BAUDRATE;
+  
+  /* Initialize the I2C master peripheral */
+  I2C_MasterInit(I2C_MASTER, &masterConfig, I2C_MASTER_CLOCK_FREQUENCY);
+}
+
+void I2C_Send(uint8_t adr, uint8_t reg, uint8_t data) {
+  uint8_t registerAddress = reg;
+  
+  /* First data in txBuff is data length of the transmiting data. */
+  g_master_txBuff[0] = data;
+  
+  /* Send master blocking data to slave */
+  I2C_MasterStart(I2C_MASTER, adr, kI2C_Write);
+  
+  /* subAddress = 0x01, data = g_master_txBuff - write to slave.
+  start + slaveaddress(w) + subAddress + length of data buffer + data buffer + stop*/
+  I2C_MasterWriteBlocking(I2C_MASTER, &registerAddress, 1, kI2C_TransferNoStopFlag);
+  
+  I2C_MasterWriteBlocking(I2C_MASTER, g_master_txBuff, 1, 0);
+  I2C_MasterStop(I2C_MASTER);
+}
+
+uint8_t I2C_Receive(uint8_t adr, uint8_t reg) {
+  uint8_t registerAddress = reg;
+  
+  /* Receive blocking data from slave */
+  /* subAddress = 0x01, data = g_master_rxBuff - read from slave.
+  start + slaveaddress(w) + subAddress + repeated start + slaveaddress(r) + rx data buffer + stop */
+  I2C_MasterStart(I2C_MASTER, adr, kI2C_Write);
+  
+  /* subAddress = 0x01, data = g_master_txBuff - write to slave.
+  start + slaveaddress(w) + subAddress + length of data buffer + data buffer + stop*/
+  I2C_MasterWriteBlocking(I2C_MASTER, &registerAddress, 1, kI2C_TransferNoStopFlag);
+  
+  I2C_MasterRepeatedStart(I2C_MASTER, adr, kI2C_Read);
+  I2C_MasterReadBlocking(I2C_MASTER, g_master_rxBuff, 1, 0);
+  I2C_MasterStop(I2C_MASTER);
+  
+  return g_master_rxBuff[0];
+}

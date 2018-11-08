@@ -493,4 +493,6 @@ static inline void CTIMER_Reset(CTIMER_Type *base)
 
 /*! @}*/
 
+void TIMER_Init(void);
+
 #endif /* _FSL_CTIMER_H_ */

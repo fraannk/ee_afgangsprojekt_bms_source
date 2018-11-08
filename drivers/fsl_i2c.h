@@ -74,6 +74,16 @@
 #define I2C_STAT_SLVST_RX (1)
 #define I2C_STAT_SLVST_TX (2)
 
+/* definitions for I2C initialization */ 
+#define I2C_MASTER_BASE (I2C0_BASE)
+#define I2C_MASTER_CLOCK_FREQUENCY (12000000)
+#define I2C_MASTER ((I2C_Type *)I2C_MASTER_BASE)
+
+#define I2C_MASTER_SLAVE_ADDR_7BIT 0x08U
+#define BMS I2C_MASTER_SLAVE_ADDR_7BIT
+#define I2C_BAUDRATE 100000U
+#define I2C_DATA_LENGTH 33U
+
 /*! @brief I2C status return codes. */
 enum _i2c_status
 {
@@ -1074,6 +1084,12 @@ status_t I2C_SlaveTransferGetCount(I2C_Type *base, i2c_slave_handle_t *handle, s
 void I2C_SlaveTransferHandleIRQ(I2C_Type *base, void *i2cHandle);
 
 /*@}*/ /* end of Slave IRQ handler */
+
+void I2C_Init(void);
+
+void I2C_Send(uint8_t adr, uint8_t reg, uint8_t data); 
+
+uint8_t I2C_Receive(uint8_t adr, uint8_t reg);   
 
 /*! @} */ /* end of i2c_slave_driver */
 

@@ -80,6 +80,10 @@ static ctimer_callback_type_t ctimerCallbackType[FSL_FEATURE_SOC_CTIMER_COUNT] =
 /*! @brief Array to map timer instance to IRQ number. */
 static const IRQn_Type s_ctimerIRQ[] = CTIMER_IRQS;
 
+#define CTIMER CTIMER0                 /* Timer 0 */
+#define CTIMER_MAT_OUT kCTIMER_Match_1 /* Match output 1 */
+#define CTIMER_CLK_FREQ CLOCK_GetFreq(kCLOCK_CoreSysClk)
+
 /*******************************************************************************
  * Code
  ******************************************************************************/
@@ -447,3 +451,22 @@ void CTIMER4_DriverIRQHandler(void)
 }
 
 #endif
+
+void TIMER_Init(void) {  
+  /* CTIMER config variables */
+  ctimer_config_t config;
+  ctimer_match_config_t matchConfig;
+  
+  CTIMER_GetDefaultConfig(&config);
+  CTIMER_Init(CTIMER, &config);
+  
+  matchConfig.enableCounterReset = true;
+  matchConfig.enableCounterStop = false;
+  matchConfig.matchValue = CTIMER_CLK_FREQ;
+  matchConfig.outControl = kCTIMER_Output_Toggle;
+  matchConfig.outPinInitState = true;
+  matchConfig.enableInterrupt = false;
+  CTIMER_SetupMatch(CTIMER, CTIMER_MAT_OUT, &matchConfig);
+  CTIMER_StartTimer(CTIMER);
+}
+
