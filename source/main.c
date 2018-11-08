@@ -47,6 +47,7 @@ int main(void) {
   /* Set systick reload value to generate 1ms interrupt */
   SysTick_Config(SystemCoreClock / 1000U);
   
+  /* Communication protocols demos */ 
   printf("Battery Management System v0.2 booting...\r\nBoot complete!\r\n\r\n");   
   printf("I2C transfer commencing...\r\nSending data to slave...\r\n"); 
   I2C_Send(BMS, 0x00, 0xAB);
@@ -63,6 +64,8 @@ int main(void) {
   while (1) {
     /* Delay 100 ms */
     SysTick_DelayTicks(100U);
+    
+    /* Program idle indicator */
     GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN3);
   }
 }
