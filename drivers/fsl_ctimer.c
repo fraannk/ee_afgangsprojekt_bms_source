@@ -80,10 +80,6 @@ static ctimer_callback_type_t ctimerCallbackType[FSL_FEATURE_SOC_CTIMER_COUNT] =
 /*! @brief Array to map timer instance to IRQ number. */
 static const IRQn_Type s_ctimerIRQ[] = CTIMER_IRQS;
 
-#define CTIMER CTIMER0                 /* Timer 0 */
-#define CTIMER_MAT_OUT kCTIMER_Match_1 /* Match output 1 */
-#define CTIMER_CLK_FREQ CLOCK_GetFreq(kCLOCK_CoreSysClk)
-
 /*******************************************************************************
  * Code
  ******************************************************************************/

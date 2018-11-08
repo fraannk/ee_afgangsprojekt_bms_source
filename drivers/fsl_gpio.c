@@ -39,7 +39,6 @@
 #define FSL_COMPONENT_ID "platform.drivers.lpc_gpio"
 #endif
 
-
 /*******************************************************************************
  * Variables
  ******************************************************************************/
@@ -84,4 +83,18 @@ void GPIO_PinInit(GPIO_Type *base, uint32_t port, uint32_t pin, const gpio_pin_c
         /* Set pin direction */
         base->DIR[port] |= 1U << pin;
     }
+}
+
+void GPIO_Init(void) {
+  /* Define the init structure for the output LED pin*/
+  gpio_pin_config_t led_config = {
+    kGPIO_DigitalOutput, 0,
+  };
+  
+  /* Init output LED GPIO. */
+  GPIO_PortInit(GPIO, BOARD_LED_PORT);
+  GPIO_PinInit(GPIO, BOARD_LED_PORT, BOARD_LED_PIN2, &led_config);
+  GPIO_PinInit(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, &led_config);
+  
+  GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN2);
 }

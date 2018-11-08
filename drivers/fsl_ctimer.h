@@ -47,6 +47,10 @@
  * Definitions
  ******************************************************************************/
 
+#define CTIMER CTIMER0                 /* Timer 0 */
+#define CTIMER_MAT_OUT kCTIMER_Match_1 /* Match output 1 */
+#define CTIMER_CLK_FREQ CLOCK_GetFreq(kCLOCK_CoreSysClk)
+   
 /*! @name Driver version */
 /*@{*/
 #define FSL_CTIMER_DRIVER_VERSION (MAKE_VERSION(2, 0, 1)) /*!< Version 2.0.1 */

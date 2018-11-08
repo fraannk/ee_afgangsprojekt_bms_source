@@ -682,6 +682,8 @@ status_t USART_TransferGetReceiveCount(USART_Type *base, usart_handle_t *handle,
  */
 void USART_TransferHandleIRQ(USART_Type *base, usart_handle_t *handle);
 
+void UART_Init(void); 
+
 /* @} */
 
 #if defined(__cplusplus)

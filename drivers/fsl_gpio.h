@@ -48,6 +48,11 @@
  * Definitions
  ******************************************************************************/
 
+#define BOARD_LED_PORT 0U
+#define BOARD_LED_PIN1 11U
+#define BOARD_LED_PIN2 12U
+#define BOARD_LED_PIN3 13U
+
 /*! @name Driver version */
 /*@{*/
 /*! @brief LPC GPIO driver version 2.1.1. */
@@ -98,10 +103,10 @@ void GPIO_PortInit(GPIO_Type *base, uint32_t port);
  * @brief Initializes the GPIO peripheral.
  * @deprecated Do not use this function.  It has been superceded by @ref GPIO_PortInit.
  */
-static inline void GPIO_Init(GPIO_Type *base, uint32_t port)
-{
-    GPIO_PortInit(base, port);
-}
+//static inline void GPIO_Init(GPIO_Type *base, uint32_t port)
+//{
+//    GPIO_PortInit(base, port);
+//}
 
 /*!
  * @brief Initializes a GPIO pin used by the board.
@@ -341,6 +346,8 @@ static inline uint32_t GPIO_ReadMPort(GPIO_Type *base, uint32_t port)
 {
     return GPIO_PortMaskedRead(base, port);
 }
+
+void GPIO_Init(void);
 
 /*@}*/
 

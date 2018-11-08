@@ -703,3 +703,10 @@ void PIN_INT7_USART4_DriverIRQHandler(void)
     s_usartIsr(USART4, s_usartHandle[4]);
 }
 #endif
+
+void UART_Init(void) {
+  /* Attach 12 MHz clock to USART0 (debug console) */
+  CLOCK_Select(kUART0_Clk_From_MainClk);
+  BOARD_InitDebugConsole();
+}
+
