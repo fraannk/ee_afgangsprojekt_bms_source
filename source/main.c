@@ -73,10 +73,17 @@ int main(void) {
     
     SysTick_DelayTicks(1000U); 
     
-    printf("Cell 1 voltage: %d\r\n", I2C_Receive(BMS, 0x0C)); 
-    printf("Cell 2 voltage: %d\r\n", I2C_Receive(BMS, 0x0E)); 
-    printf("Cell 3 voltage: %d\r\n", I2C_Receive(BMS, 0x10)); 
-    printf("Cell 4 voltage: %d\r\n", I2C_Receive(BMS, 0x14)); 
+    uint8_t cell1 = I2C_Receive(BMS, 0x0C);
+    uint8_t cell2 = I2C_Receive(BMS, 0x0E);
+    uint8_t cell3 = I2C_Receive(BMS, 0x10);
+    uint8_t cell4 = I2C_Receive(BMS, 0x14);
+    
+    printf("Cell 1 voltage: %d.%.1d\r\n", cell1/10, cell1 % 10); 
+    printf("Cell 2 voltage: %d.%.1d\r\n", cell2/10, cell2 % 10); 
+    printf("Cell 3 voltage: %d.%.1d\r\n", cell3/10, cell3 % 10); 
+    printf("Cell 4 voltage: %d.%.1d\r\n", cell4/10, cell4 % 10); 
+    
     printf("\r\n");
+    
   }
 }
