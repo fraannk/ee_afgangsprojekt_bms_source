@@ -48,6 +48,10 @@
  * Definitions
  ******************************************************************************/
 
+//#define ADC_BASE ADC
+//#define ADC_SAMPLE_CHANNEL_NUMBER 7U
+//#define ADC_CLOCK_SOURCE kCLOCK_Fro
+
 /*! @name Driver version */
 /*@{*/
 /*! @brief ADC driver version 2.2.0. */

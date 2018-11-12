@@ -10,9 +10,12 @@
 #include <stdbool.h>
 #include "board.h"
 #include "fsl_debug_console.h"
+//#include "fsl_device_registers.h" 
 #include "fsl_gpio.h"
 #include "fsl_i2c.h"
 #include "fsl_usart.h"
+//#include "fsl_adc.h"
+//#include "fsl_power.h"
 #include "fsl_systick.h"
 #include "fsl_ctimer.h"
 #include "pin_mux.h"
@@ -67,5 +70,13 @@ int main(void) {
     
     /* Program idle indicator */
     GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN3);
+    
+    SysTick_DelayTicks(1000U); 
+    
+    printf("Cell 1 voltage: %d\r\n", I2C_Receive(BMS, 0x0C)); 
+    printf("Cell 2 voltage: %d\r\n", I2C_Receive(BMS, 0x0E)); 
+    printf("Cell 3 voltage: %d\r\n", I2C_Receive(BMS, 0x10)); 
+    printf("Cell 4 voltage: %d\r\n", I2C_Receive(BMS, 0x14)); 
+    printf("\r\n");
   }
 }

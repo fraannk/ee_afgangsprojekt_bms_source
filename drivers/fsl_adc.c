@@ -40,6 +40,15 @@
 #define FSL_COMPONENT_ID "platform.drivers.lpc_adc"
 #endif
 
+/*******************************************************************************
+ * Prototypes
+ ******************************************************************************/
+//static void ADC_Configuration(void);
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+//adc_result_info_t adcResultInfoStruct;
 
 static ADC_Type *const s_adcBases[] = ADC_BASE_PTRS;
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
