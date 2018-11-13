@@ -3,7 +3,6 @@
  * Kenneth og Søren's Battery Management System
  * Copyright (c) 2018, Kenneth Lukas Petersen & Søren Bolding Frank
  * All rights reserved. 
- * 
  */
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +17,7 @@
 //#include "fsl_power.h"
 #include "fsl_systick.h"
 #include "fsl_ctimer.h"
+#include "bms.h" 
 #include "pin_mux.h"
 /*******************************************************************************
  * Definitions
@@ -56,10 +56,6 @@ int main(void) {
   I2C_Send(BMS, 0x00, 0xAB);
   printf("Sent data 0xAB to register 0x00\r\n"); 
   
-  printf("Receiving data from slave...\r\n");
-  printf("Cell 1 voltage: %d\r\n", I2C_Receive(BMS, 0x0D)); 
-  printf("End of I2C transfer!\r\n\r\n");
-  
   printf("CTIMER match is blinking blue LED.\r\n");  
   printf("CTIMER modulating PWM signal with 50 percent duty cycle and 1hz.\r\n");
   printf("Red LED blinking means program idle.\r\n"); 
@@ -72,18 +68,12 @@ int main(void) {
     GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN3);
     
     SysTick_DelayTicks(1000U); 
-    
-    uint8_t cell1 = I2C_Receive(BMS, 0x0C);
-    uint8_t cell2 = I2C_Receive(BMS, 0x0E);
-    uint8_t cell3 = I2C_Receive(BMS, 0x10);
-    uint8_t cell4 = I2C_Receive(BMS, 0x14);
-    
-    printf("Cell 1 voltage: %d.%.1d\r\n", cell1/10, cell1 % 10); 
-    printf("Cell 2 voltage: %d.%.1d\r\n", cell2/10, cell2 % 10); 
-    printf("Cell 3 voltage: %d.%.1d\r\n", cell3/10, cell3 % 10); 
-    printf("Cell 4 voltage: %d.%.1d\r\n", cell4/10, cell4 % 10); 
-    
-    printf("\r\n");
-    
+        
+    printf("Cell 1 voltage: %d.%.3d\r\n", readCellVoltage(BMS, 1) / 1000, readCellVoltage(BMS, 1) % 1000);     
+    printf("Cell 2 voltage: %d.%.3d\r\n", readCellVoltage(BMS, 2) / 1000, readCellVoltage(BMS, 2) % 1000);     
+    printf("Cell 3 voltage: %d.%.3d\r\n", readCellVoltage(BMS, 3) / 1000, readCellVoltage(BMS, 3) % 1000);     
+    printf("Cell 4 voltage: %d.%.3d\r\n", readCellVoltage(BMS, 4) / 1000, readCellVoltage(BMS, 4) % 1000);     
+
+    printf("Pack voltage: %d.%.3d\r\n", readPackVoltage(BMS) / 1000, readPackVoltage(BMS) % 1000);     
   }
 }

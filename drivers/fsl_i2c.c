@@ -1632,7 +1632,7 @@ void I2C_Send(uint8_t adr, uint8_t reg, uint8_t data) {
   I2C_MasterStop(I2C_MASTER);
 }
 
-uint8_t I2C_Receive(uint8_t adr, uint8_t reg) {
+uint32_t I2C_Receive(uint8_t adr, uint8_t reg, uint8_t length) {
   uint8_t registerAddress = reg;
   
   /* Receive blocking data from slave */
@@ -1645,8 +1645,26 @@ uint8_t I2C_Receive(uint8_t adr, uint8_t reg) {
   I2C_MasterWriteBlocking(I2C_MASTER, &registerAddress, 1, kI2C_TransferNoStopFlag);
   
   I2C_MasterRepeatedStart(I2C_MASTER, adr, kI2C_Read);
-  I2C_MasterReadBlocking(I2C_MASTER, g_master_rxBuff, 1, 0);
+  I2C_MasterReadBlocking(I2C_MASTER, g_master_rxBuff, length, 0);
   I2C_MasterStop(I2C_MASTER);
   
-  return g_master_rxBuff[0];
+  uint32_t receivedData = 0;
+  
+  switch (length) {
+  case 1: 
+    receivedData = g_master_rxBuff[0];
+    break;
+  case 2: 
+    receivedData = (g_master_rxBuff[0]<<8) | g_master_rxBuff[1];
+    break; 
+  case 3: 
+    receivedData = (g_master_rxBuff[0]<<8) | (g_master_rxBuff[1]<<8) | g_master_rxBuff[2];
+    break;
+  case 4:
+    receivedData = (g_master_rxBuff[0]<<8) | (g_master_rxBuff[1]<<8) | (g_master_rxBuff[2]<<8) | g_master_rxBuff[3];
+    break;
+  default:
+    receivedData = 0xDEADBEEF;
+  }
+  return receivedData;
 }

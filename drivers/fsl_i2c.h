@@ -1089,7 +1089,7 @@ void I2C_Init(void);
 
 void I2C_Send(uint8_t adr, uint8_t reg, uint8_t data); 
 
-uint8_t I2C_Receive(uint8_t adr, uint8_t reg);   
+uint32_t I2C_Receive(uint8_t adr, uint8_t reg, uint8_t length);   
 
 /*! @} */ /* end of i2c_slave_driver */
 
