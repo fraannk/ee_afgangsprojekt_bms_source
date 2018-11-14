@@ -59,17 +59,18 @@ int main(void) {
   
   printf("CTIMER match is blinking blue LED.\r\n");  
   printf("CTIMER modulating PWM signal with 50 percent duty cycle and 1hz.\r\n");
-  printf("Red LED blinking means program idle.\r\n\r\n"); 
+  printf("Red LED means discharge FET ON!\r\n\r\n"); 
   
   while (1) {
-    /* Delay 100 ms */
-    SysTick_DelayTicks(100U);
-    
-    /* Program idle indicator */
-    GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN3);
-    
-    SysTick_DelayTicks(2000U); 
-        
+    GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 1);
+    fetControl(BMS, 'D', 1); 
+    SysTick_DelayTicks(500U);     
+    printf("FET on, current draw: %dmA\r\n", readCurrentDraw(BMS));
+    fetControl(BMS, 'D', 0); 
+    GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 0);
+    SysTick_DelayTicks(500U);     
+    printf("FET off, current draw: %dmA\r\n\r\n", readCurrentDraw(BMS));
+            
     printf("Cell 1 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 1) / 1000, readCellVoltage(BMS, 1) % 1000);     
     printf("Cell 2 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 2) / 1000, readCellVoltage(BMS, 2) % 1000);     
     printf("Cell 3 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 3) / 1000, readCellVoltage(BMS, 3) % 1000);     
@@ -77,15 +78,19 @@ int main(void) {
 
     printf("Pack voltage: %d.%.3dV\r\n\r\n", readPackVoltage(BMS) / 1000, readPackVoltage(BMS) % 1000);
     
-    printf("Current draw: %dmA\r\n\r\n", readCurrentDraw(BMS));
-    
     SysTick_DelayTicks(2000U);
-    balanceCell(BMS, 1);
+    printf("Balancing cell 1\r\n");
+    balanceCell(BMS, 1, 1);
     SysTick_DelayTicks(2000U); 
-    balanceCell(BMS, 2);
+    printf("Balancing cell 2\r\n");
+    balanceCell(BMS, 2, 1);
     SysTick_DelayTicks(2000U); 
-    balanceCell(BMS, 3);
+    printf("Balancing cell 3\r\n");
+    balanceCell(BMS, 3, 1);
     SysTick_DelayTicks(2000U); 
-    balanceCell(BMS, 4);    
+    printf("Balancing cell 4\r\n\r\n");
+    balanceCell(BMS, 4, 1);  
+    SysTick_DelayTicks(2000U); 
+    balanceCell(BMS, 4, 0);  
   }
 }

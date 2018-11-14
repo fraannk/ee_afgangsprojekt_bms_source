@@ -46,7 +46,12 @@ uint32_t readCurrentDraw(uint8_t bmsAdr);
  * @note I'ts not recommended to balance on adjacent cells, which is why this
  * function ovewrwrites previous balancing cell. 
  */
-void balanceCell(uint8_t bmsAdr, uint8_t cellNo);
+void balanceCell(uint8_t bmsAdr, uint8_t cellNumber, uint8_t io);
+
+/*!
+ * @brief Control charge or discharge fet on/off
+ */
+void fetControl(uint8_t bmsAdr, char fet, uint8_t io); 
 
 /*!
  * @brief Initialize BMS with appropriate settings
