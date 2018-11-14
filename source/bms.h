@@ -41,9 +41,15 @@ uint32_t readPackVoltage(uint8_t bmsAdr);
 uint32_t readCurrentDraw(uint8_t bmsAdr); 
 
 /*!
- * @brief Initialize BQ76920 IC with appropiate settings.
+ * @brief Balance on a single cell.
  *
- * @note Please change register values for your own settings. 
+ * @note I'ts not recommended to balance on adjacent cells, which is why this
+ * function ovewrwrites previous balancing cell. 
+ */
+void balanceCell(uint8_t bmsAdr, uint8_t cellNo);
+
+/*!
+ * @brief Initialize BMS with appropriate settings
  */
 void BMS_Init(uint8_t bmsAdr); 
 

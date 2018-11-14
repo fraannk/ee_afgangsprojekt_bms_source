@@ -63,6 +63,14 @@ uint32_t readCurrentDraw(uint8_t bmsAdr) {
   return (uint32_t)retVal; 
 }
 
+void balanceCell(uint8_t bmsAdr, uint8_t cellNumber) {
+  if (cellNumber == CELLCOUNT) {
+    I2C_Send(bmsAdr, 0x01, 0x10);
+  } else {
+    I2C_Send(bmsAdr, 0x01, 0x01 << (cellNumber-1));
+  }
+}
+
 void BMS_Init(uint8_t bmsAdr) {
   I2C_Send(bmsAdr, 0x04, 0x10); 
   I2C_Send(bmsAdr, 0x0B, 0x19);

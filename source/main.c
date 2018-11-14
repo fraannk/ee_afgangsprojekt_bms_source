@@ -68,7 +68,7 @@ int main(void) {
     /* Program idle indicator */
     GPIO_PortToggle(GPIO, BOARD_LED_PORT, 1u << BOARD_LED_PIN3);
     
-    SysTick_DelayTicks(1000U); 
+    SysTick_DelayTicks(2000U); 
         
     printf("Cell 1 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 1) / 1000, readCellVoltage(BMS, 1) % 1000);     
     printf("Cell 2 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 2) / 1000, readCellVoltage(BMS, 2) % 1000);     
@@ -77,6 +77,15 @@ int main(void) {
 
     printf("Pack voltage: %d.%.3dV\r\n\r\n", readPackVoltage(BMS) / 1000, readPackVoltage(BMS) % 1000);
     
-    printf("Current draw: %dmA\r\n\r\n", readCurrentDraw(BMS)); 
+    printf("Current draw: %dmA\r\n\r\n", readCurrentDraw(BMS));
+    
+    SysTick_DelayTicks(2000U);
+    balanceCell(BMS, 1);
+    SysTick_DelayTicks(2000U); 
+    balanceCell(BMS, 2);
+    SysTick_DelayTicks(2000U); 
+    balanceCell(BMS, 3);
+    SysTick_DelayTicks(2000U); 
+    balanceCell(BMS, 4);    
   }
 }
