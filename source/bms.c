@@ -3,6 +3,7 @@
  * Kenneth og Søren's Battery Management System
  * Copyright (c) 2018, Kenneth Lukas Petersen & Søren Bolding Frank
  * All rights reserved. 
+ * Driver documentation: http://mcuxpresso.nxp.com/api_doc/dev/802/group__lpc__adc.html
  */
 
 #include "bms.h"
@@ -43,3 +44,30 @@ uint32_t readPackVoltage(uint8_t bmsAdr) {
     
   return packVoltage;
 }
+
+uint32_t readCurrentDraw(uint8_t bmsAdr) {
+  uint32_t uV = I2C_Receive(bmsAdr, 0x32, 2); 
+  
+  if(uV == 0x0000 || uV == 0x0001) {
+    uV = 0xFFFF;
+  }
+  uV = 0x10000 - uV;
+
+  float retVal = uV;
+  if (retVal == 0x0001) {
+    retVal = 0x0000; 
+  } else {
+    retVal = retVal * 8.44; 
+  }
+  
+  return (uint32_t)retVal; 
+}
+
+void BMS_Init(uint8_t bmsAdr) {
+  I2C_Send(bmsAdr, 0x04, 0x10); 
+  I2C_Send(bmsAdr, 0x0B, 0x19);
+  I2C_Send(bmsAdr, 0x05, 0x42); 
+  
+}
+
+
