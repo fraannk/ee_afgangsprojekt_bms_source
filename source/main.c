@@ -42,17 +42,19 @@ int main(void) {
   /* Board peripherals init */
   BOARD_InitPins();
   BOARD_InitBootClocks();
+  UART_Init();
+  
+  printf("Battery Management System v0.2 booting...\r\n");
+
   GPIO_Init(); 
   I2C_Init(); 
-  UART_Init();
   TIMER_Init(); 
   BMS_Init(BMS); 
   
   /* Set systick reload value to generate 1ms interrupt */
   SysTick_Config(SystemCoreClock / 1000U);
   
-  /* Communication protocols demos */ 
-  printf("Battery Management System v0.2 booting...\r\nBoot complete!\r\n\r\n");   
+  printf("Boot complete!\r\n\r\n");   
   
   printf("CTIMER match is blinking blue LED.\r\n");  
   printf("CTIMER modulating PWM signal with 50 percent duty cycle and 1hz.\r\n");
