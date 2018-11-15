@@ -87,6 +87,32 @@ void fetControl(uint8_t bmsAdr, char fet, uint8_t io) {
   }
 }
 
+uint32_t readTemp(uint8_t bmsAdr) {
+  uint32_t temp = 0; 
+#if INTERNALTEMP == 1
+  temp = I2C_Receive(bmsAdr, 0x2C, 2);
+  
+  float tempV = temp * (float)382; /* 382uV/LSB */
+  tempV /= (float)1000000; /* Divided by 100000 to convert to V */
+  
+  float temperatureC = 25.0 - ((tempV - 1.2) / 0.0042);
+  return (int32_t)temperatureC; 
+#else
+  I2C_Send(0x48, 0x01, 0x00); 
+  temp = I2C_Receive(0x48, 0x00, 2); 
+  temp = (uint32_t)(temp>>5);
+  /* D10 is the sign bit */
+  if (temp & 0x400) {
+    /* after conversion, bit 16 is the sign bit */
+    temp = (int32_t)(((-temp+1)&0x3FF) * 0.125) | 0x10000;
+  } else {
+    /* Bit 7 (D10) is the polarity, 0 is Plus temperature and 1 is Minus temperature */
+    temp = (int32_t)(temp * 0.125);
+  }
+  return (temp);
+#endif
+}
+
 void BMS_Init(uint8_t bmsAdr) {
   I2C_Send(bmsAdr, 0x04, 0x10); 
   I2C_Send(bmsAdr, 0x0B, 0x19);

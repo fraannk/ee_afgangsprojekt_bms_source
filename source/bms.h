@@ -14,8 +14,9 @@
  * Definitions
  ******************************************************************************/
 
-#define I2CBMS //Define as I2CBMS for BQ76920 IC, or ANALOGBMS for analog BMS.  
-#define CELLCOUNT 4
+#define I2CBMS          /* Define as I2CBMS for BQ76920 IC, or ANALOGBMS for analog BMS. */  
+#define CELLCOUNT 4     /* Set cellcount number to appropiate cellcount (3-5) */
+#define INTERNALTEMP 1  /* 0 for LPC804 onboard I2C temp sensor (eval), 1 for IC internal die temp */
 
 /*******************************************************************************
  * Functions
@@ -52,6 +53,11 @@ void balanceCell(uint8_t bmsAdr, uint8_t cellNumber, uint8_t io);
  * @brief Control charge or discharge fet on/off
  */
 void fetControl(uint8_t bmsAdr, char fet, uint8_t io); 
+
+/*!
+ * @brief Read temperature from the BMS or LPC804 onboard LM75 (eval)
+ */
+uint32_t readTemp(uint8_t bmsAdr);
 
 /*!
  * @brief Initialize BMS with appropriate settings
