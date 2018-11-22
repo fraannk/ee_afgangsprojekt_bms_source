@@ -29,7 +29,7 @@ uint32_t readCellVoltage(uint8_t bmsAdr, uint8_t cellNumber) {
   }
 #endif
   float retVal = cell;
-  retVal = (retVal * 0.38) + 30;
+  retVal = (retVal * 0.38) + 30; /* Datasheet formula */
   
   return (uint32_t)retVal; 
 }
@@ -57,7 +57,7 @@ uint32_t readCurrentDraw(uint8_t bmsAdr) {
   if (retVal == 0x0001) {
     retVal = 0x0000; 
   } else {
-    retVal = retVal * 8.44; 
+    retVal = retVal * 8.44; /* Datasheet formula */
   }
   
   return (uint32_t)retVal; 
@@ -76,11 +76,13 @@ void balanceCell(uint8_t bmsAdr, uint8_t cellNumber, uint8_t io) {
 }
 
 void fetControl(uint8_t bmsAdr, char fet, uint8_t io) {
-  if (io) {
+  if (io == 1) {
     if (fet == 'C') {
       I2C_Send(bmsAdr, 0x05, 0x41);
     } else if (fet == 'D') {
       I2C_Send(bmsAdr, 0x05, 0x42); 
+    } else if (fet == 'B') {
+      I2C_Send(bmsAdr, 0x05, 0x43); 
     }
   } else {
     I2C_Send(bmsAdr, 0x05, 0x40); 
@@ -94,8 +96,7 @@ uint32_t readTemp(uint8_t bmsAdr) {
   
   float tempV = temp * (float)382; /* 382uV/LSB */
   tempV /= (float)1000000; /* Divided by 100000 to convert to V */
-  
-  float temperatureC = 25.0 - ((tempV - 1.2) / 0.0042);
+  float temperatureC = 25.0 - ((tempV - 1.2) / 0.0042); /* Datasheet formula */ 
   return (int32_t)temperatureC; 
 #else
   I2C_Send(0x48, 0x01, 0x00); 

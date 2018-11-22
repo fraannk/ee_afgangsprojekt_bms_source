@@ -2609,6 +2609,12 @@
             <name>$PROJ_DIR$\source\bms.h</name>
         </file>
         <file>
+            <name>$PROJ_DIR$\source\display.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\source\display.h</name>
+        </file>
+        <file>
             <name>$PROJ_DIR$\source\main.c</name>
         </file>
     </group>

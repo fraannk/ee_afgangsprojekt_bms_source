@@ -62,12 +62,12 @@ int main(void) {
   
   while (1) {
     GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 0);
-    fetControl(BMS, 'D', 1); 
-    SysTick_DelayTicks(500U);     
+    fetControl(BMS, 'B', 1); 
+    SysTick_DelayTicks(2000U);     
     printf("FET on, current draw: %dmA\r\n", readCurrentDraw(BMS));
-    fetControl(BMS, 'D', 0); 
+    fetControl(BMS, 'B', 0); 
     GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 1);
-    SysTick_DelayTicks(500U);     
+    SysTick_DelayTicks(2000U);     
     printf("FET off, current draw: %dmA\r\n\r\n", readCurrentDraw(BMS));
             
     printf("Cell 1 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 1) / 1000, readCellVoltage(BMS, 1) % 1000);     
@@ -76,22 +76,27 @@ int main(void) {
     printf("Cell 4 voltage: %d.%.3dV\r\n\r\n", readCellVoltage(BMS, 4) / 1000, readCellVoltage(BMS, 4) % 1000);     
 
     printf("Pack voltage: %d.%.3dV\r\n", readPackVoltage(BMS) / 1000, readPackVoltage(BMS) % 1000);
-    printf("Die temperature: %dC\r\n\r\n", readTemp(BMS)); 
-//    printf("LM57 temperature: %dC\r\n\r\n", readTemp(BMS)); 
+    printf("Die temperature: %dC\r\n", readTemp(BMS)); 
     
-    SysTick_DelayTicks(2000U);
-    printf("Balancing cell 1\r\n");
-    balanceCell(BMS, 1, 1);
-    SysTick_DelayTicks(2000U); 
-    printf("Balancing cell 2\r\n");
-    balanceCell(BMS, 2, 1);
-    SysTick_DelayTicks(2000U); 
-    printf("Balancing cell 3\r\n");
-    balanceCell(BMS, 3, 1);
-    SysTick_DelayTicks(2000U); 
-    printf("Balancing cell 4\r\n\r\n");
-    balanceCell(BMS, 4, 1);  
-    SysTick_DelayTicks(2000U); 
-    balanceCell(BMS, 4, 0);  
+//    I2C_Send(0x7C, 0x01, 0x01);
+//    I2C_Send(0x7C, 0x01, 0x01);
+//    SysTick_DelayTicks(1000U); 
+    
+    printf("LM75 temperature: %dC\r\n\r\n", readTemp(BMS)); 
+    
+//    SysTick_DelayTicks(2000U);
+//    printf("Balancing cell 1\r\n");
+//    balanceCell(BMS, 1, 1);
+//    SysTick_DelayTicks(2000U); 
+//    printf("Balancing cell 2\r\n");
+//    balanceCell(BMS, 2, 1);
+//    SysTick_DelayTicks(2000U); 
+//    printf("Balancing cell 3\r\n");
+//    balanceCell(BMS, 3, 1);
+//    SysTick_DelayTicks(2000U); 
+//    printf("Balancing cell 4\r\n\r\n");
+//    balanceCell(BMS, 4, 1);  
+//    SysTick_DelayTicks(2000U); 
+//    balanceCell(BMS, 4, 0);  
   }
 }
