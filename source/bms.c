@@ -1,6 +1,6 @@
 /*
  * ee_afgangsprojekt_source_code - bms.c
- * Kenneth og Søren's Battery Management System
+ * Kenneth & Søren's Battery Management System
  * Copyright (c) 2018, Kenneth Lukas Petersen & Søren Bolding Frank
  * All rights reserved. 
  * Driver documentation: http://mcuxpresso.nxp.com/api_doc/dev/802/group__lpc__adc.html

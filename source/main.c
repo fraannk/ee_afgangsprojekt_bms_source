@@ -39,7 +39,7 @@
  * @brief Main function
  */
 int main(void) {
-  /* Board peripherals init */
+  /* Board & BMS peripherals init */
   BOARD_InitPins();
   BOARD_InitBootClocks();
   UART_Init();
@@ -49,11 +49,9 @@ int main(void) {
   GPIO_Init(); 
   I2C_Init(); 
   TIMER_Init(); 
+  SysTick_Init(1000); 
   BMS_Init(BMS); 
-  
-  /* Set systick reload value to generate 1ms interrupt */
-  SysTick_Config(SystemCoreClock / 1000U);
-  
+    
   printf("Boot complete!\r\n\r\n");   
   
   printf("CTIMER match is blinking blue LED.\r\n");  
