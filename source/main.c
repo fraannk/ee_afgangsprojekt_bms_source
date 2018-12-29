@@ -46,7 +46,7 @@ int main(void) {
   
   printf("\033[2J");
   printf("\033[0;0H"); 
-  printf("Battery Management System v1.1 booting...\r\n");
+  printf("Battery Management System v1.2 booting...\r\n");
 
   GPIO_Init(); 
   I2C_Init(); 
@@ -62,6 +62,7 @@ int main(void) {
   
   uint8_t fetIO = 1; 
 //  uint8_t fetIOtemp = 1; 
+  uint32_t uAhRemaining = CELL_CAPACITY*1000;
   
   while (1) {    
     uint16_t vCell1 = readCellVoltage(BMS, 1);
@@ -82,10 +83,17 @@ int main(void) {
     uint16_t current = readCurrentDraw(BMS); 
     printf("Current draw: %d.%.4dA\r\n", current / 10000, current % 10000);
     
+    SysTick_DelayTicks(250U);
+    uint16_t current2 = readCurrentDraw(BMS); 
+    
+    uint32_t uAhUsed = calculateUsedCapacity(current*100, current*100);
+    uAhRemaining = uAhRemaining - uAhUsed;
+    printf("Capacity remaining: %d.%.3d mAh\r\n", uAhRemaining / 1000, uAhRemaining % 1000);
+    
     uint16_t tempLM = readTemp(BMS); 
     printf("LM75 temperature: %dC\r\n\r\n", readTemp(BMS)); 
     printf("\033[J");
-    
+        
     if ((vCell1 == BALANCE_VOLTAGE) && (vCell2 == BALANCE_VOLTAGE) && (vCell3 == BALANCE_VOLTAGE) && (vCell4 == BALANCE_VOLTAGE)) {
       fetControl(BMS, 'B', 0); 
       balanceCell(BMS, 1, 0); 
@@ -163,7 +171,7 @@ int main(void) {
       }
     }
 
-    SysTick_DelayTicks(500U);
+    SysTick_DelayTicks(250U);
     printf("\033[7;0H"); 
   }
 #endif

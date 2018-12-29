@@ -133,9 +133,16 @@ uint16_t calculatePackPercentageFromVoltage(uint16_t currentVoltage) {
   return (uint16_t)percentage; 
 }
 
-
-
-
+uint32_t calculateUsedCapacity(uint32_t current1, uint32_t current2) {
+  if ((current1 < 8000) && (current2 < 8000)) {
+    current1 = 0; 
+    current2 = 0; 
+  }
+  float var1 = (current1 + current2) / 2.0;
+  float usedCapacity = var1 / 3600.0;
+  
+  return (uint32_t)usedCapacity;
+}
 
 
 

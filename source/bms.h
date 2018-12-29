@@ -18,8 +18,9 @@
 #define INTERNALTEMP 0  /* 0 for LPC804 onboard I2C temp sensor (eval), 1 for IC internal die temp */
 
 #define MIN_CELL_VOLTAGE 3200
-#define BALANCE_VOLTAGE 4023
+#define BALANCE_VOLTAGE 4100
 #define BALANCE_STOP 4000
+#define CELL_CAPACITY 2600
 #define CURRENT_DRAW_CUTOFF 60000
 #define TEMP_CUTOFF_HIGH 35
 #define TEMP_CUTOFF_LOW 30
@@ -81,6 +82,11 @@ uint32_t readTemp(uint8_t bmsAdr);
  * @brief Calculate current battery percentage based on the voltage. 
  */
 uint16_t calculatePackPercentageFromVoltage(uint16_t currentVoltage);
+
+/*!
+ * @brief Calculate capacity remaining from coulomb counter. 
+ */
+uint32_t calculateUsedCapacity(uint32_t current1, uint32_t current2);  
 
 #ifdef ANALOGBMS 
 
