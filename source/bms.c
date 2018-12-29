@@ -89,6 +89,16 @@ void fetControl(uint8_t bmsAdr, char fet, uint8_t io) {
   }
 }
 
+void BMS_Init(uint8_t bmsAdr) {
+  I2C_Send(bmsAdr, 0x04, 0x10); 
+  I2C_Send(bmsAdr, 0x0B, 0x19);
+  I2C_Send(bmsAdr, 0x05, 0x40); 
+  
+  I2C_Send(bmsAdr, 0x06, 0x87); /* PROTECT1 register */
+  I2C_Send(bmsAdr, 0x07, 0x0F); /* PROTECT2 register */ 
+  I2C_Send(bmsAdr, 0x08, 0x00); /* PROTECT3 register */
+}
+
 uint32_t readTemp(uint8_t bmsAdr) {
   uint32_t temp = 0; 
 #if INTERNALTEMP == 1
@@ -114,14 +124,19 @@ uint32_t readTemp(uint8_t bmsAdr) {
 #endif
 }
 
-void BMS_Init(uint8_t bmsAdr) {
-  I2C_Send(bmsAdr, 0x04, 0x10); 
-  I2C_Send(bmsAdr, 0x0B, 0x19);
-  I2C_Send(bmsAdr, 0x05, 0x40); 
+uint16_t calculatePackPercentageFromVoltage(uint16_t currentVoltage) {
+  float range = MAX_PACK_VOLTAGE - MIN_PACK_VOLTAGE;
+  float current = currentVoltage - MIN_PACK_VOLTAGE;
+  float result = current / range; 
+  float percentage = result * 100.0;
   
-  I2C_Send(bmsAdr, 0x06, 0x07); /* PROTECT1 register */
-  I2C_Send(bmsAdr, 0x07, 0x0F); /* PROTECT2 register */ 
-  I2C_Send(bmsAdr, 0x08, 0x00); /* PROTECT3 register */
+  return (uint16_t)percentage; 
 }
 
 
+
+
+
+
+
+/* EOF */

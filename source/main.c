@@ -22,11 +22,6 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define BALANCE_VOLTAGE 4150
-#define BALANCE_STOP 4100
-#define CURRENT_DRAW_CUTOFF 40000
-#define TEMP_CUTOFF_HIGH 29
-#define TEMP_CUTOFF_LOW 27
 
 /*******************************************************************************
  * Prototypes
@@ -81,6 +76,9 @@ int main(void) {
     uint16_t vPack = readPackVoltage(BMS);
     printf("Pack voltage: %d.%.3dV\r\n", vPack / 1000, vPack % 1000);
     
+    uint16_t packPercentage = calculatePackPercentageFromVoltage(vPack); 
+    printf("Pack percentage: %d percent  \r\n", packPercentage); 
+    
     uint16_t current = readCurrentDraw(BMS); 
     printf("Current draw: %d.%.4dA\r\n", current / 10000, current % 10000);
     
@@ -88,41 +86,47 @@ int main(void) {
     printf("LM75 temperature: %dC\r\n\r\n", readTemp(BMS)); 
     printf("\033[J");
     
-    if ((vCell1 >= BALANCE_VOLTAGE) && (vCell2 >= BALANCE_VOLTAGE) && (vCell3 >= BALANCE_VOLTAGE) && (vCell4 >= BALANCE_VOLTAGE)) {
-//      fetControl(BMS, 'C', 0); 
+    if ((vCell1 == BALANCE_VOLTAGE) && (vCell2 == BALANCE_VOLTAGE) && (vCell3 == BALANCE_VOLTAGE) && (vCell4 == BALANCE_VOLTAGE)) {
+      fetControl(BMS, 'B', 0); 
       balanceCell(BMS, 1, 0); 
       printf("Battery charged!\r\n"); 
-    } else if (vCell1 >= BALANCE_VOLTAGE) {
-      fetControl(BMS, 'B', 0); 
+    } else if ((vCell1 > BALANCE_VOLTAGE) && (vCell1 >= vCell2) && (vCell1 >= vCell3) && (vCell1 >= vCell4)) {
+      fetIO = 0; 
+      fetControl(BMS, 'B', fetIO); 
       balanceCell(BMS, 1, 1); 
       printf("Balancing cell 1!\r\n"); 
-    } else if (vCell2 >= BALANCE_VOLTAGE) {
-      fetControl(BMS, 'B', 0); 
+      if ((vCell1 <= vCell2) && (vCell1 <= vCell3) && (vCell1 <= vCell4)) {
+        balanceCell(BMS, 1, 0); 
+      }
+    } else if ((vCell2 > BALANCE_VOLTAGE) && (vCell2 >= vCell1) && (vCell2 >= vCell3) && (vCell2 >= vCell4)) {
+      fetIO = 0;
+      fetControl(BMS, 'B', fetIO); 
       balanceCell(BMS, 2, 1); 
       printf("Balancing cell 2!\r\n"); 
-    } else if (vCell3 >= BALANCE_VOLTAGE) {
-      fetControl(BMS, 'B', 0); 
+      if ((vCell2 <= vCell1) && (vCell2 <= vCell3) && (vCell2 <= vCell4)) {
+        balanceCell(BMS, 2, 0); 
+      }
+    } else if ((vCell3 > BALANCE_VOLTAGE) && (vCell3 >= vCell1) && (vCell3 >= vCell2) && (vCell3 >= vCell4)) {
+      fetIO = 0; 
+      fetControl(BMS, 'B', fetIO); 
       balanceCell(BMS, 3, 1); 
       printf("Balancing cell 3!\r\n"); 
-    } else if (vCell4 >= BALANCE_VOLTAGE) {
-      fetControl(BMS, 'B', 0); 
+      if ((vCell3 <= vCell1) && (vCell3 <= vCell2) && (vCell3 <= vCell4)) {
+        balanceCell(BMS, 3, 0); 
+      }
+    } else if ((vCell4 > BALANCE_VOLTAGE) && (vCell4 >= vCell1) && (vCell4 >= vCell2) && (vCell4 >= vCell3)) {
+      fetIO = 0; 
+      fetControl(BMS, 'B', fetIO); 
       balanceCell(BMS, 4, 1); 
       printf("Balancing cell 4!\r\n"); 
-    } else if (vCell1 <= BALANCE_STOP) {
-      balanceCell(BMS, 1, 0); 
-      fetControl(BMS, 'B', fetIO);
-    } else if (vCell2 <= BALANCE_STOP) {
-      balanceCell(BMS, 2, 0); 
+      if ((vCell4 <= vCell1) && (vCell4 <= vCell2) && (vCell4 <= vCell3)) {
+        balanceCell(BMS, 4, 0); 
+      }
+    } else {  
+      fetIO = 1; 
       fetControl(BMS, 'B', fetIO); 
-    } else if (vCell3 <= BALANCE_STOP) {
-      balanceCell(BMS, 3, 0); 
-      fetControl(BMS, 'B', fetIO); 
-    } else if (vCell4 <= BALANCE_STOP) {
-      balanceCell(BMS, 4, 0); 
-      fetControl(BMS, 'B', fetIO); 
+//      balanceCell(BMS, 1, 0); 
     }
-    
-    fetControl(BMS, 'B', fetIO); 
       
     if (fetIO) {
       printf("Both MOSFET's ON! \r\n");

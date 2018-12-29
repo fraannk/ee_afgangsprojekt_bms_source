@@ -13,10 +13,19 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-
 #define I2CBMS          /* Define as I2CBMS for BQ76920 IC, or ANALOGBMS for analog BMS. */  
 #define CELLCOUNT 4     /* Set cellcount number to appropiate cellcount (3-5) */
 #define INTERNALTEMP 0  /* 0 for LPC804 onboard I2C temp sensor (eval), 1 for IC internal die temp */
+
+#define MIN_CELL_VOLTAGE 3200
+#define BALANCE_VOLTAGE 4023
+#define BALANCE_STOP 4000
+#define CURRENT_DRAW_CUTOFF 60000
+#define TEMP_CUTOFF_HIGH 35
+#define TEMP_CUTOFF_LOW 30
+#define MAX_PACK_VOLTAGE (BALANCE_VOLTAGE*4)
+#define MIN_PACK_VOLTAGE (MIN_CELL_VOLTAGE*4)
+
 
 /*******************************************************************************
  * Functions
@@ -67,6 +76,11 @@ void BMS_Init(uint8_t bmsAdr);
  * @brief Read temperature from the BMS or LPC804 onboard LM75 (eval)
  */
 uint32_t readTemp(uint8_t bmsAdr);
+
+/*!
+ * @brief Calculate current battery percentage based on the voltage. 
+ */
+uint16_t calculatePackPercentageFromVoltage(uint16_t currentVoltage);
 
 #ifdef ANALOGBMS 
 
