@@ -458,7 +458,7 @@ void TIMER_Init(void) {
   
   matchConfig.enableCounterReset = true;
   matchConfig.enableCounterStop = false;
-  matchConfig.matchValue = CTIMER_CLK_FREQ;
+  matchConfig.matchValue = CTIMER_CLK_FREQ/2;
   matchConfig.outControl = kCTIMER_Output_Toggle;
   matchConfig.outPinInitState = true;
   matchConfig.enableInterrupt = false;

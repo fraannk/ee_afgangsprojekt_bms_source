@@ -97,8 +97,8 @@ void BOARD_InitPins(void) {
     /* I2C0_SCL connect to P0_14 */
     SWM_SetMovablePinSelect(SWM0, kSWM_I2C0_SCL, kSWM_PortPin_P0_14);
     
-    /* TimerMatchChannel1 connect to P0_20 */
-    SWM_SetMovablePinSelect(SWM0, kSWM_T0_MAT_CHN1, kSWM_PortPin_P0_11);
+    /* TimerMatchChannel1 connect to P0_8 */
+    SWM_SetMovablePinSelect(SWM0, kSWM_T0_MAT_CHN1, kSWM_PortPin_P0_8);
 
     /* Disable clock for switch matrix. */
     CLOCK_DisableClock(kCLOCK_Swm);

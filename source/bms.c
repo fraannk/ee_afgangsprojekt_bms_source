@@ -118,6 +118,10 @@ void BMS_Init(uint8_t bmsAdr) {
   I2C_Send(bmsAdr, 0x04, 0x10); 
   I2C_Send(bmsAdr, 0x0B, 0x19);
   I2C_Send(bmsAdr, 0x05, 0x40); 
+  
+  I2C_Send(bmsAdr, 0x06, 0x07); /* PROTECT1 register */
+  I2C_Send(bmsAdr, 0x07, 0x0F); /* PROTECT2 register */ 
+  I2C_Send(bmsAdr, 0x08, 0x00); /* PROTECT3 register */
 }
 
 

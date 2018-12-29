@@ -22,6 +22,11 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
+#define BALANCE_VOLTAGE 4150
+#define BALANCE_STOP 4100
+#define CURRENT_DRAW_CUTOFF 40000
+#define TEMP_CUTOFF_HIGH 29
+#define TEMP_CUTOFF_LOW 27
 
 /*******************************************************************************
  * Prototypes
@@ -44,57 +49,138 @@ int main(void) {
   BOARD_InitBootClocks();
   UART_Init();
   
-  printf("Battery Management System v0.2 booting...\r\n");
+  printf("\033[2J");
+  printf("\033[0;0H"); 
+  printf("Battery Management System v1.1 booting...\r\n");
 
   GPIO_Init(); 
   I2C_Init(); 
   TIMER_Init(); 
-  SysTick_Init(1000); 
-  BMS_Init(BMS); 
-    
-  printf("Boot complete!\r\n\r\n");   
+  SysTick_Init(1000);     
+  printf("Boot complete!\r\n\r\n"); 
   
-  printf("CTIMER match is blinking blue LED.\r\n");  
-  printf("CTIMER modulating PWM signal with 50 percent duty cycle and 1hz.\r\n");
-  printf("Red LED means discharge FET ON!\r\n\r\n"); 
+#ifdef I2CBMS  
+  BMS_Init(BMS); 
+  printf("BQ76920 BMS initializing...\r\n"); 
+  
+  printf("LED blinking, indicating system is powered on.\r\n\r\n");
+  
+  uint8_t fetIO = 1; 
+//  uint8_t fetIOtemp = 1; 
+  
+  while (1) {    
+    uint16_t vCell1 = readCellVoltage(BMS, 1);
+    uint16_t vCell2 = readCellVoltage(BMS, 2);
+    uint16_t vCell3 = readCellVoltage(BMS, 3);
+    uint16_t vCell4 = readCellVoltage(BMS, 4);
+    printf("Cell 1 voltage: %d.%.3dV\r\n", vCell1 / 1000, vCell1 % 1000);     
+    printf("Cell 2 voltage: %d.%.3dV\r\n", vCell2 / 1000, vCell2 % 1000);     
+    printf("Cell 3 voltage: %d.%.3dV\r\n", vCell3 / 1000, vCell3 % 1000);     
+    printf("Cell 4 voltage: %d.%.3dV\r\n", vCell4 / 1000, vCell4 % 1000);
+            
+    uint16_t vPack = readPackVoltage(BMS);
+    printf("Pack voltage: %d.%.3dV\r\n", vPack / 1000, vPack % 1000);
+    
+    uint16_t current = readCurrentDraw(BMS); 
+    printf("Current draw: %d.%.4dA\r\n", current / 10000, current % 10000);
+    
+    uint16_t tempLM = readTemp(BMS); 
+    printf("LM75 temperature: %dC\r\n\r\n", readTemp(BMS)); 
+    printf("\033[J");
+    
+    if ((vCell1 >= BALANCE_VOLTAGE) && (vCell2 >= BALANCE_VOLTAGE) && (vCell3 >= BALANCE_VOLTAGE) && (vCell4 >= BALANCE_VOLTAGE)) {
+//      fetControl(BMS, 'C', 0); 
+      balanceCell(BMS, 1, 0); 
+      printf("Battery charged!\r\n"); 
+    } else if (vCell1 >= BALANCE_VOLTAGE) {
+      fetControl(BMS, 'B', 0); 
+      balanceCell(BMS, 1, 1); 
+      printf("Balancing cell 1!\r\n"); 
+    } else if (vCell2 >= BALANCE_VOLTAGE) {
+      fetControl(BMS, 'B', 0); 
+      balanceCell(BMS, 2, 1); 
+      printf("Balancing cell 2!\r\n"); 
+    } else if (vCell3 >= BALANCE_VOLTAGE) {
+      fetControl(BMS, 'B', 0); 
+      balanceCell(BMS, 3, 1); 
+      printf("Balancing cell 3!\r\n"); 
+    } else if (vCell4 >= BALANCE_VOLTAGE) {
+      fetControl(BMS, 'B', 0); 
+      balanceCell(BMS, 4, 1); 
+      printf("Balancing cell 4!\r\n"); 
+    } else if (vCell1 <= BALANCE_STOP) {
+      balanceCell(BMS, 1, 0); 
+      fetControl(BMS, 'B', fetIO);
+    } else if (vCell2 <= BALANCE_STOP) {
+      balanceCell(BMS, 2, 0); 
+      fetControl(BMS, 'B', fetIO); 
+    } else if (vCell3 <= BALANCE_STOP) {
+      balanceCell(BMS, 3, 0); 
+      fetControl(BMS, 'B', fetIO); 
+    } else if (vCell4 <= BALANCE_STOP) {
+      balanceCell(BMS, 4, 0); 
+      fetControl(BMS, 'B', fetIO); 
+    }
+    
+    fetControl(BMS, 'B', fetIO); 
+      
+    if (fetIO) {
+      printf("Both MOSFET's ON! \r\n");
+    } else {
+      printf("Both MOSFET's OFF!\r\n");
+    }
+    
+    if (current >= CURRENT_DRAW_CUTOFF) {
+      fetIO = 0;
+      fetControl(BMS, 'B', fetIO);
+      balanceCell(BMS, 1, 0); 
+      printf("\r\nCurrent draw too high, turning MOSFET's OFF! Please reset to re-enable.\r\n");
+      
+      while(1) {
+        /* Endless loop until the user reset's the BMS */
+      }
+    }
+    
+    if (tempLM >= TEMP_CUTOFF_HIGH) {
+      fetIO = 0;
+      fetControl(BMS, 'B', fetIO); 
+      balanceCell(BMS, 1, 0); 
+      printf("\r\nTemperature too high, turning MOSFET's OFF! \r\nPlease let the system cool down before further use.\r\n");
+      
+      while(tempLM >= TEMP_CUTOFF_LOW) {
+        tempLM = readTemp(BMS); 
+        printf("\rCurrent temperature: %dC, target: %dC ", tempLM, TEMP_CUTOFF_LOW-1);
+        SysTick_DelayTicks(500U);
+      }
+      
+      printf("\r\n");
+      if (current <= CURRENT_DRAW_CUTOFF) {
+        fetIO = 1;
+      }
+    }
+
+    SysTick_DelayTicks(500U);
+    printf("\033[7;0H"); 
+  }
+#endif
+  
+#ifdef ANALOGBMS
+  printf("Analog BMS initializing...\r\n"); 
+  
+  TIMER_Init(); 
+  printf("LED blinking, indicating system is powered on.\r\n");  
   
   while (1) {
-    GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 0);
-    fetControl(BMS, 'B', 1); 
-    SysTick_DelayTicks(2000U);     
-    printf("FET on, current draw: %dmA\r\n", readCurrentDraw(BMS));
-    fetControl(BMS, 'B', 0); 
-    GPIO_PinWrite(GPIO, BOARD_LED_PORT, BOARD_LED_PIN3, 1);
-    SysTick_DelayTicks(2000U);     
-    printf("FET off, current draw: %dmA\r\n\r\n", readCurrentDraw(BMS));
-            
-    printf("Cell 1 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 1) / 1000, readCellVoltage(BMS, 1) % 1000);     
-    printf("Cell 2 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 2) / 1000, readCellVoltage(BMS, 2) % 1000);     
-    printf("Cell 3 voltage: %d.%.3dV\r\n", readCellVoltage(BMS, 3) / 1000, readCellVoltage(BMS, 3) % 1000);     
-    printf("Cell 4 voltage: %d.%.3dV\r\n\r\n", readCellVoltage(BMS, 4) / 1000, readCellVoltage(BMS, 4) % 1000);     
-
-    printf("Pack voltage: %d.%.3dV\r\n", readPackVoltage(BMS) / 1000, readPackVoltage(BMS) % 1000);
-    printf("Die temperature: %dC\r\n", readTemp(BMS)); 
-    
-//    I2C_Send(0x7C, 0x01, 0x01);
-//    I2C_Send(0x7C, 0x01, 0x01);
-//    SysTick_DelayTicks(1000U); 
-    
+    /* Temperature reading */
+    uint16_t tempLM = readTemp(BMS); 
     printf("LM75 temperature: %dC\r\n\r\n", readTemp(BMS)); 
     
-//    SysTick_DelayTicks(2000U);
-//    printf("Balancing cell 1\r\n");
-//    balanceCell(BMS, 1, 1);
-//    SysTick_DelayTicks(2000U); 
-//    printf("Balancing cell 2\r\n");
-//    balanceCell(BMS, 2, 1);
-//    SysTick_DelayTicks(2000U); 
-//    printf("Balancing cell 3\r\n");
-//    balanceCell(BMS, 3, 1);
-//    SysTick_DelayTicks(2000U); 
-//    printf("Balancing cell 4\r\n\r\n");
-//    balanceCell(BMS, 4, 1);  
-//    SysTick_DelayTicks(2000U); 
-//    balanceCell(BMS, 4, 0);  
+    if (tempLM >= TEMP_CUTOFF) {
+      /* Turn off mosfets */
+      printf("Temperature too high, turning MOSFET's OFF! Please reset to re-enable.\r\n");
+    }    
+    
+    SysTick_DelayTicks(500U);
   }
+#endif
 }
