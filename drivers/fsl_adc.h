@@ -722,6 +722,8 @@ static inline void ADC_ClearStatusFlags(ADC_Type *base, uint32_t mask)
     base->FLAGS = mask; /* Write 1 to clear. */
 }
 
+void ADC_Config();
+
 /* @} */
 
 #if defined(__cplusplus)

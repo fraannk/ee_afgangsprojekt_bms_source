@@ -46,7 +46,7 @@ int main(void) {
   
   printf("\033[2J");
   printf("\033[0;0H"); 
-  printf("Battery Management System v1.2 booting...\r\n");
+  printf("Battery Management System v1.3 booting...\r\n");
 
   GPIO_Init(); 
   I2C_Init(); 
@@ -179,7 +179,8 @@ int main(void) {
   printf("Analog BMS initializing...\r\n"); 
   printf("LED blinking, indicating system is powered on.\r\n");  
   
-  ADC_Init(ADC, &config);
+  ADC_Config();
+  ADC_Init(ADC, 0);
   
   uint8_t fetIO = 1; 
   uint32_t uAhRemaining = CELL_CAPACITY*1000;
@@ -200,11 +201,11 @@ int main(void) {
     uint16_t packPercentage = calculatePackPercentageFromVoltage(vPack); 
     printf("Pack percentage: %d percent  \r\n", packPercentage); 
     
-    uint16_t current = readADCCurrentDraw(BMS); 
+    uint16_t current = readADCCurrentDraw(); 
     printf("Current draw: %d.%.4dA\r\n", current / 1000, current % 1000);
     
     SysTick_DelayTicks(250U);
-    uint16_t current2 = readADCCurrentDraw(BMS); 
+    uint16_t current2 = readADCCurrentDraw(); 
     
     uint32_t uAhUsed = calculateUsedCapacity(current*100, current*100);
     uAhRemaining = uAhRemaining - uAhUsed;

@@ -49,7 +49,8 @@
  * Variables
  ******************************************************************************/
 //adc_result_info_t adcResultInfoStruct;
-
+adc_conv_seq_config_t adcConvSeqConfigStruct;
+adc_config_t adcConfigStruct;
 
 static ADC_Type *const s_adcBases[] = ADC_BASE_PTRS;
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
@@ -406,4 +407,28 @@ bool ADC_GetChannelConversionResult(ADC_Type *base, uint32_t channel, adc_result
     info->overrunFlag = ((tmp32 & ADC_DAT_OVERRUN_MASK) == ADC_DAT_OVERRUN_MASK);
 
     return true;
+}
+
+void ADC_Config() {
+
+/* Configure the converter. */
+#if defined(FSL_FEATURE_ADC_HAS_CTRL_ASYNMODE) & FSL_FEATURE_ADC_HAS_CTRL_ASYNMODE
+    adcConfigStruct.clockMode = kADC_ClockSynchronousMode; /* Using sync clock source. */
+#endif                                                     /* FSL_FEATURE_ADC_HAS_CTRL_ASYNMODE */
+    adcConfigStruct.clockDividerNumber = 1;                /* The divider for sync clock is 2. */
+#if defined(FSL_FEATURE_ADC_HAS_CTRL_RESOL) & FSL_FEATURE_ADC_HAS_CTRL_RESOL
+    adcConfigStruct.resolution = kADC_Resolution12bit;
+#endif /* FSL_FEATURE_ADC_HAS_CTRL_RESOL */
+#if defined(FSL_FEATURE_ADC_HAS_CTRL_BYPASSCAL) & FSL_FEATURE_ADC_HAS_CTRL_BYPASSCAL
+    adcConfigStruct.enableBypassCalibration = false;
+#endif /* FSL_FEATURE_ADC_HAS_CTRL_BYPASSCAL */
+#if defined(FSL_FEATURE_ADC_HAS_CTRL_TSAMP) & FSL_FEATURE_ADC_HAS_CTRL_TSAMP
+    adcConfigStruct.sampleTimeNumber = 0U;
+#endif /* FSL_FEATURE_ADC_HAS_CTRL_TSAMP */
+#if defined(FSL_FEATURE_ADC_HAS_CTRL_LPWRMODE) & FSL_FEATURE_ADC_HAS_CTRL_LPWRMODE
+    adcConfigStruct.enableLowPowerMode = false;
+#endif /* FSL_FEATURE_ADC_HAS_CTRL_LPWRMODE */
+#if defined(FSL_FEATURE_ADC_HAS_TRIM_REG) & FSL_FEATURE_ADC_HAS_TRIM_REG
+    adcConfigStruct.voltageRange = kADC_HighVoltageRange;
+#endif /* FSL_FEATURE_ADC_HAS_TRIM_REG */
 }

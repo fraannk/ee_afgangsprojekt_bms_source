@@ -13,7 +13,7 @@
 /*******************************************************************************
  * Definitions
  ******************************************************************************/
-#define I2CBMS          /* Define as I2CBMS for BQ76920 IC, or ANALOGBMS for analog BMS. */  
+#define ANALOGBMS          /* Define as I2CBMS for BQ76920 IC, or ANALOGBMS for analog BMS. */  
 #define CELLCOUNT 4     /* Set cellcount number to appropiate cellcount (3-5) */
 #define INTERNALTEMP 0  /* 0 for LPC804 onboard I2C temp sensor (eval), 1 for IC internal die temp */
 
@@ -99,7 +99,7 @@ uint32_t readADCCellVoltage(uint8_t cellNumber);
 /*!
  * @brief Reading entire pack voltage from the analog BMS. 
  */
-uint32_t calculatePackVoltage(void);
+uint32_t calculateADCPackVoltage(void);
 
 /*!
  * @brief Reading current current draw from BQ76920 IC via I2C
