@@ -48,8 +48,12 @@
  ******************************************************************************/
 
 #define CTIMER CTIMER0                 /* Timer 0 */
+#define CTIMER1 CTIMER0                 /* Timer 0 */
+#define CTIMER2 CTIMER1                 /* Timer 0 */
 #define CTIMER_MAT_OUT kCTIMER_Match_1 /* Match output 1 */
 #define CTIMER_CLK_FREQ CLOCK_GetFreq(kCLOCK_CoreSysClk)
+
+
    
 /*! @name Driver version */
 /*@{*/
@@ -490,6 +494,9 @@ static inline void CTIMER_Reset(CTIMER_Type *base)
     base->TCR |= CTIMER_TCR_CRST_MASK;
     base->TCR &= ~CTIMER_TCR_CRST_MASK;
 }
+
+status_t CTIMER1_GetPwmPeriodValue(uint32_t pwmFreqHz, uint8_t dutyCyclePercent, uint32_t timerClock_Hz);
+status_t CTIMER2_GetPwmPeriodValue(uint32_t pwmFreqHz, uint8_t dutyCyclePercent, uint32_t timerClock_Hz);
 
 #if defined(__cplusplus)
 }

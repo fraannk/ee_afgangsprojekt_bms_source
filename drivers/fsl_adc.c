@@ -50,6 +50,7 @@
  ******************************************************************************/
 //adc_result_info_t adcResultInfoStruct;
 
+
 static ADC_Type *const s_adcBases[] = ADC_BASE_PTRS;
 #if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
 static const clock_ip_name_t s_adcClocks[] = ADC_CLOCKS;

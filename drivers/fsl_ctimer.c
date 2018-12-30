@@ -448,6 +448,44 @@ void CTIMER4_DriverIRQHandler(void)
 
 #endif
 
+status_t CTIMER1_GetPwmPeriodValue(uint32_t pwmFreqHz, uint8_t dutyCyclePercent, uint32_t timerClock_Hz)
+{
+  volatile uint32_t g_pwmPeriod = 0U;
+  volatile uint32_t g_pulsePeriod = 0U;
+  /* Calculate PWM period match value */
+  g_pwmPeriod = (timerClock_Hz / pwmFreqHz) - 1;
+  
+  /* Calculate pulse width match value */
+  if (dutyCyclePercent == 0)
+  {
+    g_pulsePeriod = g_pwmPeriod + 1;
+  }
+  else
+  {
+    g_pulsePeriod = (g_pwmPeriod * (100 - dutyCyclePercent)) / 100;
+  }
+  return kStatus_Success;
+}
+
+status_t CTIMER2_GetPwmPeriodValue(uint32_t pwmFreqHz, uint8_t dutyCyclePercent, uint32_t timerClock_Hz)
+{
+  volatile uint32_t g_pwmPeriod = 0U;
+  volatile uint32_t g_pulsePeriod = 0U;
+  /* Calculate PWM period match value */
+  g_pwmPeriod = (timerClock_Hz / pwmFreqHz) - 1;
+  
+  /* Calculate pulse width match value */
+  if (dutyCyclePercent == 0)
+  {
+    g_pulsePeriod = g_pwmPeriod + 1;
+  }
+  else
+  {
+    g_pulsePeriod = (g_pwmPeriod * (100 - dutyCyclePercent)) / 100;
+  }
+  return kStatus_Success;
+}
+
 void TIMER_Init(void) {  
   /* CTIMER config variables */
   ctimer_config_t config;

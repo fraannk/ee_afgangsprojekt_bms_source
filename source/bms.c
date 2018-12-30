@@ -7,10 +7,26 @@
  */
 
 #include "bms.h"
+#include "fsl_gpio.h"
+#include "fsl_adc.h"
+#include "fsl_ctimer.h"
 
 /*******************************************************************************
  * Functions
  ******************************************************************************/
+
+/*******************************************************************************
+ * Variables
+ ******************************************************************************/
+adc_result_info_t adcCell1;
+adc_result_info_t adcCell2;
+adc_result_info_t adcCell3;
+adc_result_info_t adcCell4;
+adc_result_info_t adcCell5;
+
+adc_result_info_t adcCurrentSense;
+
+uint32_t timerClock;
 
 uint32_t readCellVoltage(uint8_t bmsAdr, uint8_t cellNumber) {
   uint32_t cell = 0; 
@@ -144,6 +160,92 @@ uint32_t calculateUsedCapacity(uint32_t current1, uint32_t current2) {
   return (uint32_t)usedCapacity;
 }
 
+uint32_t readADCCellVoltage(uint8_t cellNumber) {
+  uint32_t cell = 0; 
+#if CELLCOUNT == 5
+  cell = adcCell5.result;
+#else
+  switch (cellNumber) {
+  case 1: 
+    cell = adcCell1.result;
+    break;
+  case 2: 
+    cell = adcCell2.result;
+    break;
+  case 3: 
+    cell = adcCell3.result;
+    break;
+  case 4:
+    cell = adcCell4.result;
+    break;
+  default: 
+    cell = 0;
+  }
+#endif
+  float retVal = cell;
+  retVal = retVal * 1.191;
+  
+  return (uint32_t)retVal; 
+}
 
+uint32_t calculateADCPackVoltage() {
+  uint32_t retVal = 0;
+  uint32_t cell1 = readADCCellVoltage(1);
+  uint32_t cell2 = readADCCellVoltage(2);
+  uint32_t cell3 = readADCCellVoltage(3);
+  uint32_t cell4 = readADCCellVoltage(4);
+  retVal = cell1 + cell2 + cell3 + cell4;
+  return retVal;
+}
+
+uint32_t readADCCurrentDraw() {
+  uint32_t retVal = 0;
+  retVal = adcCell3.result * 2;
+  return retVal;
+}
+
+void balanceCellGPIO(uint8_t cellNumber, uint8_t io) {
+  switch(cellNumber) {
+  case 1:
+    GPIO_PinWrite(GPIO, 0, 19, io);
+    break;  
+  case 2:
+    GPIO_PinWrite(GPIO, 0, 22, io);
+    break;  
+  case 3:
+    GPIO_PinWrite(GPIO, 0, 16, io);
+    break;
+  case 4:
+    GPIO_PinWrite(GPIO, 0, 28, io);
+    break;
+  default:
+    GPIO_PinWrite(GPIO, 0, 19, 0);
+    GPIO_PinWrite(GPIO, 0, 22, 0);
+    GPIO_PinWrite(GPIO, 0, 16, 0);
+    GPIO_PinWrite(GPIO, 0, 28, 0);
+  }
+}
+
+void fetControlPWM(char fet, uint8_t io) {
+  if (io == 1) {
+    if (fet == 'C') {
+      CTIMER1_GetPwmPeriodValue(20000, 9, timerClock);
+      CTIMER_StartTimer(CTIMER1);
+    } else if (fet == 'D') {
+      CTIMER2_GetPwmPeriodValue(20000, 52, timerClock);
+      CTIMER_StartTimer(CTIMER2);
+    } else if (fet == 'B') {
+      CTIMER1_GetPwmPeriodValue(20000, 9, timerClock);
+      CTIMER_StartTimer(CTIMER1);
+      CTIMER2_GetPwmPeriodValue(20000, 52, timerClock);
+      CTIMER_StartTimer(CTIMER2);
+    }
+  } else {
+    CTIMER1_GetPwmPeriodValue(20000, 0, timerClock);  
+    CTIMER_StartTimer(CTIMER1);
+    CTIMER2_GetPwmPeriodValue(20000, 0, timerClock);  
+    CTIMER_StartTimer(CTIMER2);
+  }
+}
 
 /* EOF */

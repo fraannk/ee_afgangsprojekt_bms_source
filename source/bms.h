@@ -90,7 +90,32 @@ uint32_t calculateUsedCapacity(uint32_t current1, uint32_t current2);
 
 #ifdef ANALOGBMS 
 
+/*!
+ * @brief Reading cell voltage from the analog BMS from the ADC's.
+ *
+ */
+uint32_t readADCCellVoltage(uint8_t cellNumber);
 
+/*!
+ * @brief Reading entire pack voltage from the analog BMS. 
+ */
+uint32_t calculatePackVoltage(void);
+
+/*!
+ * @brief Reading current current draw from BQ76920 IC via I2C
+ */
+uint32_t readADCCurrentDraw(void); 
+
+/*!
+ * @brief Balance on a single cell.
+ *
+ */
+void balanceCellGPIO(uint8_t cellNumber, uint8_t io);
+
+/*!
+ * @brief Control charge or discharge fet on/off
+ */
+void fetControlPWM(char fet, uint8_t io); 
 
 #endif 
 
