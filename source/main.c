@@ -61,7 +61,6 @@ int main(void) {
   printf("LED blinking, indicating system is powered on.\r\n\r\n");
   
   uint8_t fetIO = 1; 
-//  uint8_t fetIOtemp = 1; 
   uint32_t uAhRemaining = CELL_CAPACITY*1000;
   
   while (1) {    
@@ -133,7 +132,7 @@ int main(void) {
     } else {  
       fetIO = 1; 
       fetControl(BMS, 'B', fetIO); 
-//      balanceCell(BMS, 1, 0); 
+      balanceCell(BMS, 1, 0); 
     }
       
     if (fetIO) {
